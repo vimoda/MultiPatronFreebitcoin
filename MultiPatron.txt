@@ -8,13 +8,25 @@ if(document.getElementById("user_claimed_deposit_bonus").style.display != "none"
 }
 
 var x = '<div class="large-12 small-12 columns center">' + 
-			'Patrones<br><input type="text" id="patrones" name="patrones" class="bold bet_amount_value_input common_background_border" value="RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR" >' + 
+			'Patrones<br><input type="text" id="patrones" name="patrones" class="bold bet_amount_value_input common_background_border" value="RRRRRRRRRRRRRRRRRRRRRRR" >' + 
 			'Tiempo entre BETs (Segundos)<br><input type="text" id="tiempo" value="0.8" class="bold bet_amount_value_input common_background_border">' + 
 			'Limite BETs (0=Ilimitados)<br><input type="number" id="limitBet" value="0" class="bold bet_amount_value_input common_background_border">' + 
 			'Stop Lost (Satoshis, 0=Ilimitados)<br><input type="number" id="stopLost" value="0" class="bold bet_amount_value_input common_background_border">' + 
 			'Stop If win<select id="stopIfWin" class=""bold bet_amount_value_input common_background_border">' + 
 			'<option value="1">NO</option>' + 
 			'<option value="2">SI</option>' + 
+			'</select>' + 
+			'Change side if win<select id="ChangeSide" class=""bold bet_amount_value_input common_background_border">' + 
+			'<option value="0">NO</option>' + 
+			'<option value="1">SI</option>' + 
+			'</select>' + 
+			'Stop if Limit Bet<select id="StopIfLimit" class=""bold bet_amount_value_input common_background_border">' + 
+			'<option value="0">NO And Duplicate</option>' + 
+			'<option value="1">SI</option>' + 
+			'</select>' + 
+			'Stop if Find Patron<select id="StopIfFindPatron" class=""bold bet_amount_value_input common_background_border">' + 
+			'<option value="0">NO</option>' + 
+			'<option value="1">SI</option>' + 
 			'</select>' + 
 			'<div id="total_ganado" style="text-align:center; height:30px;"><div class="row text-center width_margin_padding_setting"><div class="row jackpot_container"><center><ul class="jackpot_table_ul" style="margin-bottom:0;"><li class="jackpot_header_first_column bold multiplier_header_background">Inicial</li><li class="jackpot_header_second_column bold multiplier_header_background">Actual</li><li class="jackpot_header_third_column bold multiplier_header_background">TWin/TWinP</li></ul></center></div><div class="row jackpot_row"><center><ul class="jackpot_table_ul" style="margin-bottom:1px; "><li class="jackpot_first_column bold"><center>'+startBalance+'</center></li><li class="jackpot_second_column bold"><center>'+startBalance+'</center></li><li class="jackpot_third_column bold"><center>0</center></li></ul></center></div></div></div>' + 
 			'<!--div id="s_consumido" style="text-align:center; height:30px;">Satoshis usados: 0</div>' + 
@@ -34,22 +46,29 @@ $(".jackpot_row").remove();
 $('#double_your_btc_bet_lose').unbind();
 $('#double_your_btc_bet_win').unbind();
 var jugadas; var patron; var boton;
-var hacerParada = false; var balanceInicial = balanceActual = balaceConsumido = 0;
-var tiempoBETs=1000;
+var hacerParada = false; var balanceInicial = balanceActual = balaceConsumido = actualBalance =  balanceInicioApuesta = 0;
+var tiempoBETs=500;
 var sideBet = 0;
 var limitBet = 0;
 var countBet = 0;
 var stopLost = 0;
 var subTotalRoll = 1;
+var ladoApostando = "";
 function iniciar(op, confirmado){
 	countBet = 0;
 	balaceConsumido = 0;
 	subTotalRoll = 1;
 	sideBet = op;
-	if(bonoActivo==0){balanceInicial = ( parseInt(parseFloat ( $("#balance").html() ) * 100000000) );}
+	if(bonoActivo==0){
+		balanceInicial = ( parseInt(parseFloat ( $("#balance").html() ) * 100000000) );
+		actualBalance = ( parseInt(parseFloat ( $("#balance").html() ) * 100000000) );
+		balanceInicioApuesta = ( parseInt(parseFloat ( $("#balance").html() ) * 100000000) );
+	}
 	else{
 		var bonus_account_balance = $("#bonus_account_balance").html();
 		balanceInicial = ( parseInt(parseFloat ( bonus_account_balance.replace(" BTC", "") ) * 100000000) );
+		actualBalance = ( parseInt(parseFloat ( bonus_account_balance.replace(" BTC", "") ) * 100000000) );
+		balanceInicioApuesta = ( parseInt(parseFloat ( bonus_account_balance.replace(" BTC", "") ) * 100000000) );
 	}
 	if($("#double_your_btc_stake").val()>0.00000002){
 		
@@ -66,14 +85,20 @@ function iniciar(op, confirmado){
 	$("#div-mensaje").hide();
 	if($("#limitBet").val()!=""){limitBet = parseInt($("#limitBet").val());}
 	if($("#stopLost").val()!=""){stopLost = parseInt($("#stopLost").val());}
-	if($("#patrones").val().length<=4){
+	if($("#patrones").val().length<=5){
 		//if($("#double_your_btc_payout_multiplier").val()>1.5){
 			//$("#double_your_btc_payout_multiplier").val("1.5");
 		//}
 		//$('#double_your_btc_stake').val('0.00000002');
 	}
-	if(op==1)boton = $("#double_your_btc_bet_hi_button");
-	if(op==0)boton = $("#double_your_btc_bet_lo_button");
+	if(op==1){
+		boton = $("#double_your_btc_bet_hi_button");
+		ladoApostando = "HI";
+	}
+	if(op==0){
+		boton = $("#double_your_btc_bet_lo_button");
+		ladoApostando = "LO";
+	}
 	
 	if($("#tiempo").val()!="" && $("#tiempo").val()!=0)tiempoBETs=parseFloat($("#tiempo").val())*1000;
 	//var boton = $("#double_your_btc_bet_lo_button");
@@ -92,7 +117,7 @@ function parar(){
 
 $('#double_your_btc_bet_lose').bind("DOMSubtreeModified",function(event){
 	
-	if(bonoActivo==0){var actualBalance = ( parseInt(parseFloat ( $("#balance").html() ) * 100000000) );}
+	if(bonoActivo==0){actualBalance = ( parseInt(parseFloat ( $("#balance").html() ) * 100000000) );}
 	else{
 		var bonus_account_balance = $("#bonus_account_balance").html();
 		actualBalance = ( parseInt(parseFloat ( bonus_account_balance.replace(" BTC", "") ) * 100000000) );
@@ -106,7 +131,7 @@ $('#double_your_btc_bet_lose').bind("DOMSubtreeModified",function(event){
 });
 
 $('#double_your_btc_bet_win').bind("DOMSubtreeModified",function(event){
-	if(bonoActivo==0){var actualBalance = ( parseInt(parseFloat ( $("#balance").html() ) * 100000000) );}
+	if(bonoActivo==0){actualBalance = ( parseInt(parseFloat ( $("#balance").html() ) * 100000000) );}
 	else{
 		var bonus_account_balance = $("#bonus_account_balance").html();
 		actualBalance = ( parseInt(parseFloat ( bonus_account_balance.replace(" BTC", "") ) * 100000000) );
@@ -124,28 +149,36 @@ $('#double_your_btc_bet_win').bind("DOMSubtreeModified",function(event){
 
 
 function validarPatron(resultado){
-	if($("#tiempo").val()!="" && $("#tiempo").val()!=0){tiempoBETs=parseFloat($("#tiempo").val())*1000;}
-	else{
-		tiempoBETs=500;
-	}
+	countBet++;
+	subTotalRoll++; 
 	if(resultado=="V"){
 		if($("#stopIfWin option:selected").val() == 2){
 			hacerParada = true;
 		    $("#botonera").html('<button id="start" onclick="iniciar(1, 0)" class="btn btn-primary" style="margin:0 0 10px 0; padding:3px; width:auto;">Apostar HI</button>' +'<button id="start" onclick="iniciar(0, 0)" class="btn btn-primary" style="margin:0 0 10px 0; padding:3px; width:auto;">Apostar LO</button>');
+		    $("#double_your_btc_stake").val("0.00000001");
 		    return false;
+		}else{
+			$("#double_your_btc_stake").val("0.00000001");
+			if($("#ChangeSide option:selected").val() == 1){
+				if(ladoApostando == "HI"){
+					boton = $("#double_your_btc_bet_lo_button");
+					ladoApostando = "LO";
+				}else if (ladoApostando == "LO") {
+					boton = $("#double_your_btc_bet_hi_button");
+					ladoApostando = "HI";
+				}	
+			}
+			countBet = 0;
+			subTotalRoll = 0;
 		}
 	}
-	countBet++;
-	subTotalRoll++; 
-	$("#bet_actual").html("Total BETs: "+countBet);
 	
+	$("#bet_actual").html("Total BETs: "+countBet);
 	if(resultado=="R"){balaceConsumido--;console.log("LOST");}
 	else{balaceConsumido++;console.log("WIN");}
-	
 	var mensaje = "Satoshis ";
-	if(balaceConsumido<0){mensaje = mensaje+"Perdidos: ";}
-	else if(balaceConsumido>0){mensaje = mensaje+"Ganados: ";}
-
+	if(balaceConsumido<0)mensaje = mensaje+"Perdidos: ";
+	else if(balaceConsumido>0)mensaje = mensaje+"Ganados: ";
 	$("#s_consumido").text(mensaje+balaceConsumido);
 	balanceActual =  (parseInt(parseFloat ($("#balance").html())*100000000));
 
@@ -163,30 +196,42 @@ function validarPatron(resultado){
         $("#patron_actual").text("Patron Actual: "+valor);
         var patron = patrones[i].substr(0,longitud);
         if (valor==patron){
-        	$("#test_sound").trigger("click");
-			 parar();
-			 var inversion = balanceActual-balanceInicial;
-			 var sideBetArr = {0:"LO",1:"HI"}
-			 $("#div-mensaje").html("Patrón encontrado: " + valor + "<br>Inversión:" + inversion + " satoshis <br><b style='font-size: 16px;'>PATRON ENCONTRADO EN BET "+sideBetArr[sideBet]+"</b>").show();
-			 $("#patron_actual").hide();
-			 $("#s_consumido").hide();
-			 return false;
-		}
+        	if($("#StopIfFindPatron option:selected").val()==1){
+        		$("#test_sound").trigger("click");
+				 parar();
+				 var inversion = balanceActual-balanceInicial;
+				 var sideBetArr = {0:"LO",1:"HI"}
+				 $("#div-mensaje").html("Patrón encontrado: " + valor + "<br>Inversión:" + inversion + " satoshis <br><b style='font-size: 16px;'>PATRON ENCONTRADO EN BET "+sideBetArr[sideBet]+"</b>").show();
+				 $("#patron_actual").hide();
+				 $("#s_consumido").hide();
+				 return false;
+        	}
+        }
 		if(limitBet>0){
 			if(countBet >= limitBet){
-				$("#test_sound").trigger("click");
-				parar();
-			 	var inversion = balanceActual-balanceInicial;
-			 	var sideBetArr = {0:"LO",1:"HI"}
-			 	$("#div-mensaje").html("Limite Bets Alcanzados ("+countBet+"): " + valor + "<br>Inversión:" + inversion + " satoshis <br>").show();
-			 	$("#patron_actual").hide();
-			 	$("#s_consumido").hide();
-			 	return false;
+				if($("#StopIfLimit option:selected").val()==1){
+					$("#test_sound").trigger("click");
+					parar();
+				 	var inversion = balanceActual-balanceInicial;
+				 	var sideBetArr = {0:"LO",1:"HI"}
+				 	$("#div-mensaje").html("Limite Bets Alcanzados ("+countBet+"): " + valor + "<br>Inversión:" + inversion + " satoshis <br>").show();
+				 	$("#patron_actual").hide();
+				 	$("#s_consumido").hide();
+				 	return false;
+				}else{
+					subTotalRoll = 1;
+					countBet = 0;
+					var BaseBet = parseInt(parseFloat ( $("#double_your_btc_stake").val() ) * 100000000);
+					BaseBet=(BaseBet*2);
+					var newBet = parseFloat((BaseBet/100000000)).toFixed(8);
+					$("#double_your_btc_stake").val(newBet);
+				}
 			}
 		}
+
 		if(stopLost>0){
-			if((startBalance-balanceActual) >= stopLost){
-				console.log(stopLost, (startBalance-balanceActual), "Fin");
+			if((balanceInicioApuesta-actualBalance) >= stopLost){
+				console.log(stopLost, (actualBalance-balanceInicial), "Fin");
 				parar();
 			 	var inversion = balanceActual-balanceInicial;
 			 	var sideBetArr = {0:"LO",1:"HI"}
