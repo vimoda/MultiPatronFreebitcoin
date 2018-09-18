@@ -6,20 +6,6 @@ if(document.getElementById("user_claimed_deposit_bonus").style.display != "none"
 }else{
 	var startBalance = ( parseInt(parseFloat ( $("#balance").html() ) * 100000000) );
 }
-
-
-
-
-	
-		
-		
-	
-	
-
-
-
-
-
 var x = '<div class="large-12 small-12 columns center">' + 
 			'<div class="row" style="width:280px;">'+
 			'	<ul style="list-style:none; text-align: center; margin-left:1em;margin-top:10px;">'+
@@ -192,7 +178,7 @@ function validarPatron(resultado){
 		    $("#double_your_btc_stake").val("0.00000001");
 		    return false;
 		}else{
-			$("#double_your_btc_stake").val("0.00000001");
+			//$("#double_your_btc_stake").val("0.00000001");
 			if($("#ChangeSide option:selected").val() == 1){
 				if(ladoApostando == "HI"){
 					boton = $("#double_your_btc_bet_lo_button");
