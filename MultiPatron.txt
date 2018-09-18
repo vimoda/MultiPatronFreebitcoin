@@ -7,26 +7,46 @@ if(document.getElementById("user_claimed_deposit_bonus").style.display != "none"
 	var startBalance = ( parseInt(parseFloat ( $("#balance").html() ) * 100000000) );
 }
 
+
+
+
+	
+		
+		
+	
+	
+
+
+
+
+
 var x = '<div class="large-12 small-12 columns center">' + 
+			'<div class="row" style="width:280px;">'+
+			'	<ul style="list-style:none; text-align: center; margin-left:1em;margin-top:10px;">'+
+			'		<li class="bet_amount_box bold multiplier_header_background bet_amount_options_margin" style="padding:4px 5px;width:71%;">TOTAL LOSE</li>'+
+			'		<li class="bet_amount_box bold bet_amount_options bet_amount_options_margin"><a href="javascript:void(0);" id="reset_total_lose" style="color: inherit;" onclick="reset_total_lose()">RESET</a></li>'+
+			'	</ul>'+
+			'	<input class="bold bet_amount_value_input common_background_border" name="stake" id="total_lose" value="0.00000000" type="text" style="margin-left:1em;">'+
+			'</div>'+
 			'Patrones<br><input type="text" id="patrones" name="patrones" class="bold bet_amount_value_input common_background_border" value="RRRRRRRRRRRRRRRRRRRRRRR" >' + 
 			'Tiempo entre BETs (Segundos)<br><input type="text" id="tiempo" value="0.8" class="bold bet_amount_value_input common_background_border">' + 
 			'Limite BETs (0=Ilimitados)<br><input type="number" id="limitBet" value="0" class="bold bet_amount_value_input common_background_border">' + 
 			'Stop Lost (Satoshis, 0=Ilimitados)<br><input type="number" id="stopLost" value="0" class="bold bet_amount_value_input common_background_border">' + 
 			'Stop If win<select id="stopIfWin" class=""bold bet_amount_value_input common_background_border">' + 
-			'<option value="1">NO</option>' + 
+			'<option value="1" selected >NO</option>' + 
 			'<option value="2">SI</option>' + 
 			'</select>' + 
 			'Change side if win<select id="ChangeSide" class=""bold bet_amount_value_input common_background_border">' + 
-			'<option value="0">NO</option>' + 
+			'<option value="0" selected >NO</option>' + 
 			'<option value="1">SI</option>' + 
 			'</select>' + 
 			'Stop if Limit Bet<select id="StopIfLimit" class=""bold bet_amount_value_input common_background_border">' + 
-			'<option value="0">NO And Duplicate</option>' + 
-			'<option value="1">SI</option>' + 
+			'<option value="1" selected >SI</option>' + 
+			'<option value="0">NO And Duplicate</option>' + 			
 			'</select>' + 
 			'Stop if Find Patron<select id="StopIfFindPatron" class=""bold bet_amount_value_input common_background_border">' + 
+			'<option value="1" selected >SI</option>' +
 			'<option value="0">NO</option>' + 
-			'<option value="1">SI</option>' + 
 			'</select>' + 
 			'<div id="total_ganado" style="text-align:center; height:30px;"><div class="row text-center width_margin_padding_setting"><div class="row jackpot_container"><center><ul class="jackpot_table_ul" style="margin-bottom:0;"><li class="jackpot_header_first_column bold multiplier_header_background">Inicial</li><li class="jackpot_header_second_column bold multiplier_header_background">Actual</li><li class="jackpot_header_third_column bold multiplier_header_background">TWin/TWinP</li></ul></center></div><div class="row jackpot_row"><center><ul class="jackpot_table_ul" style="margin-bottom:1px; "><li class="jackpot_first_column bold"><center>'+startBalance+'</center></li><li class="jackpot_second_column bold"><center>'+startBalance+'</center></li><li class="jackpot_third_column bold"><center>0</center></li></ul></center></div></div></div>' + 
 			'<!--div id="s_consumido" style="text-align:center; height:30px;">Satoshis usados: 0</div>' + 
@@ -50,10 +70,17 @@ var hacerParada = false; var balanceInicial = balanceActual = balaceConsumido = 
 var tiempoBETs=500;
 var sideBet = 0;
 var limitBet = 0;
-var countBet = 0;
+var countBet = 1;
 var stopLost = 0;
 var subTotalRoll = 1;
 var ladoApostando = "";
+var total_lose = 0;
+
+function reset_total_lose(){
+	$("#total_lose").val("0");
+	total_lose = 0;
+}
+
 function iniciar(op, confirmado){
 	countBet = 0;
 	balaceConsumido = 0;
@@ -122,6 +149,10 @@ $('#double_your_btc_bet_lose').bind("DOMSubtreeModified",function(event){
 		var bonus_account_balance = $("#bonus_account_balance").html();
 		actualBalance = ( parseInt(parseFloat ( bonus_account_balance.replace(" BTC", "") ) * 100000000) );
 	}
+	if(hacerParada){
+		total_lose = total_lose-(actualBalance-balanceInicial);
+		$("#total_lose").val(total_lose);
+	}
 	var table = '<div class="row text-center width_margin_padding_setting"><div class="row jackpot_container"><center><ul class="jackpot_table_ul" style="margin-bottom:0;"><li class="jackpot_header_first_column bold multiplier_header_background">Inicial</li><li class="jackpot_header_second_column bold multiplier_header_background">Actual</li><li class="jackpot_header_third_column bold multiplier_header_background">TWin/TWinP</li></ul></center></div><div class="row jackpot_row"><center><ul class="jackpot_table_ul" style="margin-bottom:1px; "><li class="jackpot_first_column bold"><center>'+startBalance+'</center></li><li class="jackpot_second_column bold"><center>'+actualBalance+'</center></li><li class="jackpot_third_column bold"><center>('+(actualBalance-startBalance)+')('+(actualBalance-balanceInicial)+')('+subTotalRoll+')</center></li></ul></center></div></div>';
 	$("#total_ganado").html(table);
 	if (hacerParada) return false;
@@ -138,7 +169,10 @@ $('#double_your_btc_bet_win').bind("DOMSubtreeModified",function(event){
 	}
 	
 	var table = '<div class="row text-center width_margin_padding_setting"><div class="row jackpot_container"><center><ul class="jackpot_table_ul" style="margin-bottom:0;"><li class="jackpot_header_first_column bold multiplier_header_background">Inicial</li><li class="jackpot_header_second_column bold multiplier_header_background">Actual</li><li class="jackpot_header_third_column bold multiplier_header_background">TWin/TWinP</li></ul></center></div><div class="row jackpot_row"><center><ul class="jackpot_table_ul" style="margin-bottom:1px; "><li class="jackpot_first_column bold"><center>'+startBalance+'</center></li><li class="jackpot_second_column bold"><center>'+actualBalance+'</center></li><li class="jackpot_third_column bold"><center>('+(actualBalance-startBalance)+')('+(actualBalance-balanceInicial)+')('+subTotalRoll+')</center></li></ul></center></div></div>';
-
+	if(hacerParada){
+		total_lose = total_lose-(actualBalance-balanceInicial);
+		$("#total_lose").val(total_lose);
+	}
 	$("#total_ganado").html(table);
 	if (hacerParada) return false;
 	if( $(event.currentTarget).is(':contains("win")') ){ 
@@ -168,8 +202,9 @@ function validarPatron(resultado){
 					ladoApostando = "HI";
 				}	
 			}
-			countBet = 0;
-			subTotalRoll = 0;
+			//console.log($("#stopIfWin option:selected").val());
+			//countBet = 0;
+			//subTotalRoll = 0;
 		}
 	}
 	
@@ -242,6 +277,7 @@ function validarPatron(resultado){
 			}
 		}
 	}
+	
 
 	setTimeout(function(){boton.trigger("click")},tiempoBETs);
 	        
