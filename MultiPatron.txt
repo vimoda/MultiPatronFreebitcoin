@@ -22,10 +22,19 @@ var x = '<div class="large-12 small-12 columns center">' +
 			'<option value="1" selected >NO</option>' + 
 			'<option value="2">SI</option>' + 
 			'</select>' + 
-			'Change side if win<select id="ChangeSide" class=""bold bet_amount_value_input common_background_border">' + 
+			'Back Base Bet If Win<select id="backBaseBetIfWin" class=""bold bet_amount_value_input common_background_border">' + 
+			'<option value="1" selected >SI</option>' + 
+			'<option value="2">NO</option>' + 
+			'</select>' + 
+			'Change side if win<select id="ChangeSideWin" class=""bold bet_amount_value_input common_background_border">' + 
 			'<option value="0" selected >NO</option>' + 
 			'<option value="1">SI</option>' + 
 			'</select>' + 
+			'Change side if Lose<select id="ChangeSideLose" class=""bold bet_amount_value_input common_background_border">' + 
+			'<option value="0" selected >NO</option>' + 
+			'<option value="1">SI</option>' + 
+			'</select>' + 
+			'Multiply If Lose (%)<input id="MultiplyIfLose" class=""bold bet_amount_value_input common_background_border" value="0" style="text-align:center !important;font-weight:bold !important;width:100%";">' + 
 			'Stop if Limit Bet<select id="StopIfLimit" class=""bold bet_amount_value_input common_background_border">' + 
 			'<option value="1" selected >SI</option>' + 
 			'<option value="0">NO And Duplicate</option>' + 			
@@ -61,6 +70,7 @@ var stopLost = 0;
 var subTotalRoll = 1;
 var ladoApostando = "";
 var total_lose = 0;
+var BaseBetInicial = 0;
 
 function reset_total_lose(){
 	$("#total_lose").val("0");
@@ -119,6 +129,7 @@ function iniciar(op, confirmado){
     hacerParada=false;
    	$("#botonera").html('<button id="stop" onclick="parar()" class="btn btn-warning style="margin:0 0 10px 0; padding:3px; width:auto;">Parar</button>');
     jugadas = 0;
+    BaseBetInicial = $("#double_your_btc_stake").val();
     boton.trigger("click");
 }
 
@@ -169,6 +180,7 @@ $('#double_your_btc_bet_win').bind("DOMSubtreeModified",function(event){
 
 
 function validarPatron(resultado){
+	if($("#tiempo").val()!="" && $("#tiempo").val()!=0)tiempoBETs=parseFloat($("#tiempo").val())*1000;
 	countBet++;
 	subTotalRoll++; 
 	if(resultado=="V"){
@@ -177,21 +189,42 @@ function validarPatron(resultado){
 		    $("#botonera").html('<button id="start" onclick="iniciar(1, 0)" class="btn btn-primary" style="margin:0 0 10px 0; padding:3px; width:auto;">Apostar HI</button>' +'<button id="start" onclick="iniciar(0, 0)" class="btn btn-primary" style="margin:0 0 10px 0; padding:3px; width:auto;">Apostar LO</button>');
 		    $("#double_your_btc_stake").val("0.00000001");
 		    return false;
-		}else{
-			//$("#double_your_btc_stake").val("0.00000001");
-			if($("#ChangeSide option:selected").val() == 1){
-				if(ladoApostando == "HI"){
-					boton = $("#double_your_btc_bet_lo_button");
-					ladoApostando = "LO";
-				}else if (ladoApostando == "LO") {
-					boton = $("#double_your_btc_bet_hi_button");
-					ladoApostando = "HI";
-				}	
-			}
-			//console.log($("#stopIfWin option:selected").val());
-			//countBet = 0;
-			//subTotalRoll = 0;
 		}
+		if($("#ChangeSideWin option:selected").val() == 1){
+			if(ladoApostando == "HI"){
+				boton = $("#double_your_btc_bet_lo_button");
+				ladoApostando = "LO";
+			}else if (ladoApostando == "LO") {
+				boton = $("#double_your_btc_bet_hi_button");
+				ladoApostando = "HI";
+			}
+		}
+		if($("#backBaseBetIfWin option:selected").val() == 1){
+			$("#double_your_btc_stake").val(BaseBetInicial);
+		}
+	}else{
+		if($("#ChangeSideLose option:selected").val() == 1){
+			if(ladoApostando == "HI"){
+				boton = $("#double_your_btc_bet_lo_button");
+				ladoApostando = "LO";
+			}else if (ladoApostando == "LO") {
+				boton = $("#double_your_btc_bet_hi_button");
+				ladoApostando = "HI";
+			}
+		}
+
+		var double_your_btc_stake = parseFloat($("#double_your_btc_stake").val());
+		var MultiplyIfLose = parseFloat($("#MultiplyIfLose").val());
+		console.log(MultiplyIfLose);
+		if(MultiplyIfLose>0){
+			double_your_btc_stake = (double_your_btc_stake+((double_your_btc_stake*MultiplyIfLose)/100)).toFixed(8);
+			aux_double_your_btc_stake = (double_your_btc_stake*(1+(MultiplyIfLose/100))).toFixed(8);
+			console.log(double_your_btc_stake, aux_double_your_btc_stake);
+			//double_your_btc_stake = parseFloat((parseFloat(double_your_btc_stake))*(parseInt(MulIfChangeSide))).toFixed(8);
+			$("#double_your_btc_stake").val(double_your_btc_stake);
+		}
+		
+		
 	}
 	
 	$("#bet_actual").html("Total BETs: "+countBet);
@@ -263,8 +296,6 @@ function validarPatron(resultado){
 			}
 		}
 	}
-	
-
 	setTimeout(function(){boton.trigger("click")},tiempoBETs);
 	        
 }
