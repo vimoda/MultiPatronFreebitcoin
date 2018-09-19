@@ -153,7 +153,6 @@ $('#double_your_btc_bet_lose').bind("DOMSubtreeModified",function(event){
 	var table = '<div class="row text-center width_margin_padding_setting"><div class="row jackpot_container"><center><ul class="jackpot_table_ul" style="margin-bottom:0;"><li class="jackpot_header_first_column bold multiplier_header_background">Inicial</li><li class="jackpot_header_second_column bold multiplier_header_background">Actual</li><li class="jackpot_header_third_column bold multiplier_header_background">TWin/TWinP</li></ul></center></div><div class="row jackpot_row"><center><ul class="jackpot_table_ul" style="margin-bottom:1px; "><li class="jackpot_first_column bold"><center>'+startBalance+'</center></li><li class="jackpot_second_column bold"><center>'+actualBalance+'</center></li><li class="jackpot_third_column bold"><center>('+(actualBalance-startBalance)+')('+(actualBalance-balanceInicial)+')('+subTotalRoll+')</center></li></ul></center></div></div>';
 	$("#total_ganado").html(table);
 	if (hacerParada){
-		$("#double_your_btc_stake").val(BaseBetInicial);
 	 	return false;
 	}
 	if( $(event.currentTarget).is(':contains("lose")') ){ 
@@ -175,7 +174,6 @@ $('#double_your_btc_bet_win').bind("DOMSubtreeModified",function(event){
 	}
 	$("#total_ganado").html(table);
 	if (hacerParada){
-		$("#double_your_btc_stake").val(BaseBetInicial);
 	 	return false;
 	}
 	if( $(event.currentTarget).is(':contains("win")') ){ 
@@ -336,3 +334,4 @@ function validarPatron(resultado){
 		</center>
 	</div>
 </div>';*/
+
