@@ -152,7 +152,10 @@ $('#double_your_btc_bet_lose').bind("DOMSubtreeModified",function(event){
 	}
 	var table = '<div class="row text-center width_margin_padding_setting"><div class="row jackpot_container"><center><ul class="jackpot_table_ul" style="margin-bottom:0;"><li class="jackpot_header_first_column bold multiplier_header_background">Inicial</li><li class="jackpot_header_second_column bold multiplier_header_background">Actual</li><li class="jackpot_header_third_column bold multiplier_header_background">TWin/TWinP</li></ul></center></div><div class="row jackpot_row"><center><ul class="jackpot_table_ul" style="margin-bottom:1px; "><li class="jackpot_first_column bold"><center>'+startBalance+'</center></li><li class="jackpot_second_column bold"><center>'+actualBalance+'</center></li><li class="jackpot_third_column bold"><center>('+(actualBalance-startBalance)+')('+(actualBalance-balanceInicial)+')('+subTotalRoll+')</center></li></ul></center></div></div>';
 	$("#total_ganado").html(table);
-	if (hacerParada) return false;
+	if (hacerParada){
+		$("#double_your_btc_stake").val(BaseBetInicial);
+	 	return false;
+	}
 	if( $(event.currentTarget).is(':contains("lose")') ){ 
 		validarPatron("R");
 	}
@@ -171,7 +174,10 @@ $('#double_your_btc_bet_win').bind("DOMSubtreeModified",function(event){
 		$("#total_lose").val(total_lose);
 	}
 	$("#total_ganado").html(table);
-	if (hacerParada) return false;
+	if (hacerParada){
+		$("#double_your_btc_stake").val(BaseBetInicial);
+	 	return false;
+	}
 	if( $(event.currentTarget).is(':contains("win")') ){ 
 		validarPatron("V");
 	}
@@ -187,8 +193,8 @@ function validarPatron(resultado){
 		if($("#stopIfWin option:selected").val() == 2){
 			hacerParada = true;
 		    $("#botonera").html('<button id="start" onclick="iniciar(1, 0)" class="btn btn-primary" style="margin:0 0 10px 0; padding:3px; width:auto;">Apostar HI</button>' +'<button id="start" onclick="iniciar(0, 0)" class="btn btn-primary" style="margin:0 0 10px 0; padding:3px; width:auto;">Apostar LO</button>');
-		    $("#double_your_btc_stake").val("0.00000001");
-		    return false;
+		    $("#double_your_btc_stake").val(BaseBetInicial);
+	 		return false;
 		}
 		if($("#ChangeSideWin option:selected").val() == 1){
 			if(ladoApostando == "HI"){
@@ -258,7 +264,8 @@ function validarPatron(resultado){
 				 $("#div-mensaje").html("Patrón encontrado: " + valor + "<br>Inversión:" + inversion + " satoshis <br><b style='font-size: 16px;'>PATRON ENCONTRADO EN BET "+sideBetArr[sideBet]+"</b>").show();
 				 $("#patron_actual").hide();
 				 $("#s_consumido").hide();
-				 return false;
+				$("#double_your_btc_stake").val(BaseBetInicial);
+	 			return false;
         	}
         }
 		if(limitBet>0){
@@ -271,7 +278,8 @@ function validarPatron(resultado){
 				 	$("#div-mensaje").html("Limite Bets Alcanzados ("+countBet+"): " + valor + "<br>Inversión:" + inversion + " satoshis <br>").show();
 				 	$("#patron_actual").hide();
 				 	$("#s_consumido").hide();
-				 	return false;
+				 	$("#double_your_btc_stake").val(BaseBetInicial);
+	 				return false;
 				}else{
 					subTotalRoll = 1;
 					countBet = 0;
@@ -292,7 +300,8 @@ function validarPatron(resultado){
 			 	$("#div-mensaje").html("Limite Bets Alcanzados ("+countBet+"): " + valor + "<br>Inversión:" + inversion + " satoshis <br>").show();
 			 	$("#patron_actual").hide();
 			 	$("#s_consumido").hide();
-			 	return false;
+			 	$("#double_your_btc_stake").val(BaseBetInicial);
+	 			return false;
 			}
 		}
 	}
